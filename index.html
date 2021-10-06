@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <v-app>
+        <v-main class="mx-5 mt-15">
+          <v-row>
+            <v-col >
+              <v-card>
+                <v-toolbar dark color="indigo darken-4">
+                  <v-toolbar-title> Texto </v-toolbar-title>
+                </v-toolbar>
+                <v-card-text>
+                  <v-row>
+                    <v-col>
+                      <v-textarea
+                        v-model="text_joined"
+                        filled
+                        label="Ingresa el texto a ser evaluado"
+                        rows="3"
+                      >
+                        {{text_joined}}
+                      </v-textarea>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-card>
+                <v-toolbar dark color="indigo darken-4">
+                  <v-toolbar-title> Expreson regular </v-toolbar-title>
+                </v-toolbar>
+                <v-card-text>
+                  <v-textarea
+                    :hint="response.message"
+                    :color="response.color"
+                    filled
+                    label="Ingresa la expresion regular"
+                    v-model="expReg"
+                    rows="3"
+                  >
+                  </v-textarea>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-toolbar dark color="indigo darken-4">
+                <v-toolbar-title> Coincidecias encontradas </v-toolbar-title>
+              </v-toolbar>
+            </v-col>
+          </v-row>
+          <v-row v-for="(str,index) in coincidences" :key="index">
+            <div class="mx-auto" v-html="SPACE_VALIDATOR(str)"></div>
+          </v-row>
+        </v-main>
+      </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        vuetify: new Vuetify(),
+        data() {
+          return {
+            //Textos Ingresados por el usario
+            text_joined: "",
+
+            //Expresión Regular y
+            expReg: "",
+            coincidences: [],
+
+            //TryGet
+            response: {
+              color: "blue",
+              message: "",
+            },
+          };
+        },
+        watch: {
+          expReg(value) {
+            this.GET_COINCIDENCES(value);
+          },
+          text_joined() {
+            this.GET_COINCIDENCES(this.expReg);
+          },
+        },
+        methods: {
+          SPACE_VALIDATOR(str) {
+            str = str.replace(/\n+/g, "<br/>");
+            return str;
+          },
+          GET_COINCIDENCES(value) {
+            try {
+              let expReg = new RegExp(value, "g");
+              this.coincidences = this.text_joined.match(expReg);
+
+              this.response = {
+                color: "green",
+                message: "Expresion correcta",
+              };
+            } catch (error) {
+              this.response = {
+                color: "red",
+                message: error.message,
+              };
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
